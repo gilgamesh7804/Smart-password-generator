@@ -42,16 +42,3 @@ cd password_generator
 flutter pub get
 flutter run
 
-📁 Folder Structure
-css
-Copy
-Edit
-lib/
-├── main.dart
-├── screens/
-│   └── home_screen.dart
-├── services/
-│   ├── password_service.dart
-│   └── auth_service.dart
-├── utils/
-│   └── password_generator.dart
