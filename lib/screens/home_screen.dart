@@ -128,14 +128,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildSavedPasswordsList() {
     if (_savedPasswords.isEmpty) {
-      return const Text("No passwords generated yet.");
+      return const Text("No passwords yet.");
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          '🗂️ Generated Passwords:',
+          '🗂️ Generated/Existing Passwords:',
           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
@@ -215,6 +215,78 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _promptManualPasswordEntry() {
+    final reason = _reasonController.text.trim();
+    if (reason.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a reason first.')),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        final TextEditingController _manualPasswordController =
+            TextEditingController();
+        bool _obscureText = true;
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Enter Existing Password'),
+              content: TextField(
+                controller: _manualPasswordController,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureText ? Icons.visibility_off : Icons.visibility,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
+                    },
+                  ),
+                ),
+                obscureText: _obscureText,
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    final password = _manualPasswordController.text.trim();
+                    if (password.isEmpty) return;
+
+                    await PasswordStorage.savePassword(reason, password);
+                    Navigator.pop(context);
+                    _reasonController.clear();
+
+                    setState(() {
+                      _retrievedPassword = null;
+                      _generatedPassword = null;
+                    });
+
+                    _loadPasswords();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Password saved manually')),
+                    );
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -250,6 +322,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   ElevatedButton(
                     onPressed: _retrievePassword,
                     child: const Text('Retrieve'),
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: _promptManualPasswordEntry,
+                    child: const Text('Add Password'),
                   ),
                 ],
               ),
