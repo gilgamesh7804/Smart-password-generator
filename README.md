@@ -17,6 +17,8 @@ A secure and intelligent Flutter app that helps you generate strong passwords ba
 - 📋 **One-tap Copy** to Clipboard
 - 💡 **Offline-first**: No internet connection needed
 - 📱 **Clean UI with Material Design**
+-  🔐 Added support for manually storing existing passwords using the **"Add Password"** button with visibility toggle while typing.
+
 
 ---
 
